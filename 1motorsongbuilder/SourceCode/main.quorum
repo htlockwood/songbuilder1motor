@@ -1,0 +1,148 @@
+//Song Builder 2017 using enamile painted bricks 
+//New reversible robot with single motor 7/4/2017
+use Libraries.Robots.Lego.Motor
+use Libraries.Robots.Lego.ColorSensor
+use Libraries.Robots.Lego.Utility
+use Libraries.Robots.Lego.Screen
+use Libraries.Robots.Lego.Sound
+use Libraries.Robots.Lego.Button
+use Libraries.Robots.Lego.TouchSensor
+use Libraries.Containers.Array
+use Libraries.Compute.Math
+
+//instantiate actions
+Motor motor
+ColorSensor colorSensor
+Utility utility
+Screen screen
+Sound sound
+Button button
+TouchSensor touchSensor
+Math math
+//set sensor ports 
+colorSensor:SetPort(1)
+touchSensor:SetPort(4)
+
+//Create varibles for the music notation
+integer C3=131
+integer Db3=139
+integer D3=147
+integer Eb3=156
+integer E3=165
+integer F3=175
+integer Gb3=185
+integer G3=196
+integer Ab3=208
+integer A3=220
+integer Bb3=233
+integer B3=247
+integer C4=262
+integer Db4=277
+integer D4=294
+integer Eb4=311
+integer E4=330
+integer F4=349
+integer Gb4=370
+integer G4=392
+integer Ab4=415
+integer A4=440
+integer Bb4=466
+integer B4=494
+integer C5=523
+integer Db5=554
+integer D5=587
+integer Eb5=622
+integer E5=659
+integer F5=698
+integer Gb5=740
+integer G5=784
+integer Ab5=831
+integer A5=880
+integer Bb5=932
+integer B5=988
+integer C6=1047
+integer Db6=1109
+integer D6=1175
+integer Eb6=1245
+integer E6=1319
+integer F6=1397
+integer Gb6=1480
+integer G6=1568
+integer Ab6=1661
+integer A6=1760
+integer Bb6=1865
+integer B6=1976
+integer C7=2093
+//create duratation variables W = Whole Note h= half note, q=qu. dq=dotted quarter
+integer w=1600// Whole Note
+integer dh=1200// Dotted Half Note
+integer h=800// Half Note
+integer dq=600// Dotted Quarter Note
+integer q=400// Quarter Note
+integer de=300// Dotted Eight Note
+integer e=200 // Eigth note
+integer s=100 // 16th Note
+
+// Set up the starting varibles and motors
+sound:SetVolume(100) 
+integer directiontoggle=0
+integer duration=400 
+motor:SetSpeed("A",6)
+motor:RotateForward("A")
+utility:DelayMilliseconds(10) 
+// just to get the robot moving!
+//repeat until ultrasonicSensor:GetDistance() < 0.5 //use this to stop the robot when it gets to a object
+repeat until touchSensor:IsPressed()// or use this one to stop by pressing the touch sensor.
+
+// make an array and then get the color data form the color sensor and make the numbers into an integer 255 times larger than the 0.0 - 1.0 range
+//This simulates the standard RGB 255,255,255 color palete often seen in color mixing software.
+//I need to test this against the real standards to see if this a ancraged repratation. Does not matter for the program.  
+Array<number> redGreenBlueLevels = colorSensor:GetRedGreenBlueLevels()
+number red = redGreenBlueLevels:Get(0)*255 
+number green = redGreenBlueLevels:Get(1)*255
+number blue = redGreenBlueLevels:Get(2)*255
+red = math:Round(red)
+green = math:Round(green)
+blue = math:Round(blue)
+integer ired =  cast(integer, red)
+integer igreen = cast(integer,green)
+integer iblue = cast(integer,blue)
+// put the current color numbers on the screen
+screen:OutputLarge("Red: " + ired, 1)
+screen:OutputLarge("Green: " + igreen, 3)
+screen:OutputLarge("Blue: " + iblue, 5)
+
+motor:SetSpeed("A",6)
+// map the RGB intergers to a pitch and set of range of +/- 2 to ajust for small variation
+//these are elseif's to evaulate for 9 colors and track color.
+if ired>42 and ired<55 and igreen>49 and igreen<61 and iblue>32 and iblue<46// WHITE REST
+utility:DelayMilliseconds(duration/2)
+elseif ired>24 and ired<36 and igreen>20 and igreen<29 and iblue>8 and iblue<18// wood rest
+utility:DelayMilliseconds(duration/2)
+elseif ired>42 and ired<48 and igreen>12 and igreen<18 and iblue>2 and iblue<9// RED  C5
+    sound:PlayTone(C5,duration)
+elseif ired>59 and ired<74 and igreen>58 and igreen<78 and iblue>17 and iblue<27// GOLD  D5
+    sound:PlayTone(D5,duration)
+elseif ired>57 and ired<66 and igreen>22 and igreen<26 and iblue>6 and iblue<10// ORANGE  E5
+    sound:PlayTone(E5,duration)
+elseif ired>55 and ired<59 and igreen>29 and igreen<35 and iblue>4 and iblue<9// Yellow  F5
+    sound:PlayTone(F5,duration)
+elseif ired>2 and ired<10 and igreen>10 and igreen<17 and iblue>2 and iblue<7// BLACK  G5
+    sound:PlayTone(G5,duration)
+elseif ired>33 and ired<39 and igreen>53 and igreen<63 and iblue>22 and iblue<34// Silver  A5
+    sound:PlayTone(A5,duration)
+elseif ired>66 and ired<71 and igreen>26 and igreen<30 and iblue>16 and iblue<19// PINK  B5
+    sound:PlayTone(B5,duration)
+elseif ired>3 and ired<11 and igreen>21 and igreen<31 and iblue>1 and iblue<10// GREEN  C6
+    sound:PlayTone(C6,duration)
+elseif ired>1 and ired<9 and igreen>11 and igreen<23 and iblue>10 and iblue<18 and directiontoggle = 0// Blue change direction
+motor:RotateBackward("A")
+directiontoggle=1
+elseif ired>1 and ired<9 and igreen>11 and igreen<23 and iblue>10 and iblue<18 and directiontoggle = 1// Blue move farward
+motor:RotateForward("A")
+directiontoggle=0 
+//motor:Stop("B") 
+//motor:Stop("C") 
+end//this does not end the program, it is still repeating until the touch sensor is pressed
+utility:DelayMilliseconds(duration)
+end 
